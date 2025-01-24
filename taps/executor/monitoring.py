@@ -21,9 +21,9 @@ if sys.version_info >= (3, 10):  # pragma: >=3.10 cover
 else:  # pragma: <3.10 cover
     from typing_extensions import ParamSpec
 
-from ladybug import LadybugMonitor
-from ladybug.client import ladybug_decorator
-from ladybug.config import MonitorConfig
+from magnify.client import magnify_decorator
+from magnify.config import MonitorConfig
+from magnify.monitor import MagnifyMonitor
 from pydantic import Field
 
 from taps.executor import ExecutorConfig
@@ -39,10 +39,10 @@ class MonitoringExecutor(Executor):
 
     Args:
         executor: Executor to wrap.
-        monitor: instance of ladybug monitor to use with test
+        monitor: instance of magnify monitor to use with test
     """
 
-    def __init__(self, executor: Executor, monitor: LadybugMonitor) -> None:
+    def __init__(self, executor: Executor, monitor: MagnifyMonitor) -> None:
         self.executor = executor
         self.monitor = monitor
         self.monitor.start()
@@ -63,7 +63,7 @@ class MonitoringExecutor(Executor):
         return f'{type(self).__name__}(executor={get_repr(self.executor)})'
 
     def _get_wrapped(self, fn: Callable[P, T]) -> Callable[P, T]:
-        return ladybug_decorator(fn)
+        return magnify_decorator(fn)
 
     def submit(
         self,

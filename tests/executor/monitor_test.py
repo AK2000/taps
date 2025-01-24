@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from ladybug.config import MonitorConfig
+from magnify.config import MonitorConfig
 
 from taps.executor.monitoring import MonitoringExecutorConfig
 from taps.executor.python import ThreadPoolConfig
