@@ -49,6 +49,7 @@ class SyntheticConfig(AppConfig, use_enum_values=True):
         0,
         description='Number of warmup tasks before running the workflow.',
     )
+    task_std: float = Field(0, description='standard deviation in duration.')
 
     @field_validator('structure', mode='before')
     @classmethod
@@ -82,4 +83,5 @@ class SyntheticConfig(AppConfig, use_enum_values=True):
             task_sleep=self.task_sleep,
             bag_max_running=self.bag_max_running,
             warmup_tasks=self.warmup_tasks,
+            task_std=self.task_std,
         )
