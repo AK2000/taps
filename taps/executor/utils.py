@@ -2,8 +2,10 @@ from __future__ import annotations
 
 import functools
 import itertools
+import socket
 import sys
 import threading
+import time
 from concurrent.futures import Executor
 from concurrent.futures import Future
 from types import TracebackType
@@ -260,3 +262,42 @@ class FutureDependencyExecutor(Executor):
             self.executor.shutdown(wait=wait, cancel_futures=cancel_futures)
         else:  # pragma: <3.9 cover
             self.executor.shutdown(wait=wait)
+
+
+def warmup_executor(
+    executor: Executor,
+    min_connected_nodes: int,
+    batch_size: int,
+    max_batches: int,
+    batch_sleep: int,
+) -> None:
+    """Warm up an executor until enough nodes are seen.
+
+    Args:
+        executor: executor to warm up
+        min_connected_nodes: number of unique nodes necessary to consider
+            executor warm
+        batch_size: number of tasks to submit
+        max_batches: number of iterations to try to warm nodes
+        batch_sleep: time to sleep between tries
+
+    Raises:
+        Exception: If the cluster cannot be warmed
+    """
+    hosts = set()
+    for _ in range(max_batches):
+        futures = [
+            executor.submit(socket.gethostname) for _ in range(batch_size)
+        ]
+        for f in futures:
+            hosts.add(f.result())
+
+        if len(hosts) >= min_connected_nodes:
+            return
+
+        time.sleep(batch_sleep)  # Does this need to be adjusted?
+
+    raise Exception(
+        f'Could not connect to {min_connected_nodes} after submitting '
+        f'{max_batches} of {batch_size} tasks.',
+    )
