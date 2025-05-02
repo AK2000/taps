@@ -282,7 +282,7 @@ def warmup_executor(
         batch_sleep: time to sleep between tries
 
     Raises:
-        Exception if executor cannot be warmed
+        Exception: If the cluster cannot be warmed
     """
     hosts = set()
     for _ in range(max_batches):
